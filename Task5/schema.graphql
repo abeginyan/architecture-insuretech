@@ -1,0 +1,47 @@
+# GraphQL-схема сервиса client-info.
+# Заменяет REST-контракт (Swagger 2.0, basePath /v1):
+#   GET /clients/{id}            -> Query.client(id)
+#   GET /clients/{id}/documents  -> Query.client(id) { documents }  или Query.documents(clientId)
+#   GET /clients/{id}/relatives  -> Query.client(id) { relatives }  или Query.relatives(clientId)
+
+"Клиент. Документы и родственники запрашиваются вместе с клиентом одним запросом и только когда нужны."
+type Client {
+  id: ID!
+  name: String
+  age: Int
+  "Документы клиента (GET /clients/{id}/documents)"
+  documents: [Document!]!
+  "Родственники клиента (GET /clients/{id}/relatives)"
+  relatives: [Relative!]!
+}
+
+"Документ клиента"
+type Document {
+  id: ID!
+  "Тип документа"
+  type: String
+  "Номер документа"
+  number: String
+  "Дата выдачи (как в REST — строка)"
+  issueDate: String
+  "Дата окончания срока действия (как в REST — строка)"
+  expiryDate: String
+}
+
+"Родственник клиента"
+type Relative {
+  id: ID!
+  "Тип родства"
+  relationType: String
+  name: String
+  age: Int
+}
+
+type Query {
+  "Информация о клиенте по ID (GET /clients/{id}); null, если клиента нет"
+  client(id: ID!): Client
+  "Список документов клиента по ID клиента (GET /clients/{id}/documents)"
+  documents(clientId: ID!): [Document!]!
+  "Список родственников клиента по ID клиента (GET /clients/{id}/relatives)"
+  relatives(clientId: ID!): [Relative!]!
+}
